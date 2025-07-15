@@ -12,7 +12,7 @@ func main() {
 		screenHeight int32 = 1000
 	)
 
-	rl.InitWindow(screenWidth, screenHeight, "go converted = raylib dynamic texture")
+	rl.InitWindow(screenWidth, screenHeight, "go raytracer - raylib screen texture")
 
 	width := screenWidth
 	height := screenHeight
