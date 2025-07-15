@@ -6,6 +6,13 @@ Raytracer implementation from this book;
 
 https://gabrielgambetta.com/computer-graphics-from-scratch/
 
+-   Part I: Raytracing
+
+    Basic Raytracing = OK
+    Light = OK
+    Shadows and Reflections = OK
+    Extending the Raytracer = pending
+
 # Image from raytracer
 
 ![Frame and framerate](/img.png?raw=true 'Frame and framerate')
