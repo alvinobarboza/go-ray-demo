@@ -1,0 +1,33 @@
+package raytracer
+
+import rl "github.com/gen2brain/raylib-go/raylib"
+
+type Canvas struct {
+	Pixels []rl.Color
+	Width  int32
+	Height int32
+	View   View
+}
+
+func (c *Canvas) PutPixel(x, y int32, color rl.Color) {
+	cX := c.Width/2 + x
+	cY := c.Height/2 - y
+
+	if cX < 0 || cX >= c.Width || cY < 0 || cY >= c.Height {
+		return
+	}
+
+	c.Pixels[cY*c.Width+cX] = color
+}
+
+func (c *Canvas) CanvasToViewport(x, y int32) rl.Vector3 {
+	return rl.Vector3{
+		X: float32(x) * c.View.X / float32(c.Width),
+		Y: float32(y) * c.View.Y / float32(c.Height),
+		Z: float32(c.View.D),
+	}
+}
+
+type View struct {
+	X, Y, D float32
+}
