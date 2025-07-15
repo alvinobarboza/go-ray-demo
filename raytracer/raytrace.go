@@ -7,12 +7,13 @@ import (
 )
 
 const MAX_INF int32 = 1_000_000_000
+const MAX_RECURSION int8 = 2
 
-func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []Ligths) rl.Color {
+func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []Ligths, recursion int8) rl.Color {
 	closest_sphere, closest_t := ClosesIntersection(O, D, t_min, t_max, spheres)
 
 	if closest_sphere.Radius == 0 {
-		return rl.White
+		return rl.Black
 	}
 
 	point := rl.Vector3{
@@ -47,7 +48,23 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 	closest_sphere.Color.G = uint8(float32(closest_sphere.Color.G) * i)
 	closest_sphere.Color.B = uint8(float32(closest_sphere.Color.B) * i)
 
-	return closest_sphere.Color
+	local_color := closest_sphere.Color
+
+	if recursion <= 0 || closest_sphere.Reflective <= 0 {
+		return local_color
+	}
+
+	r := closest_sphere.Reflective
+
+	reflected := ReflectRay(objToCam, normal)
+
+	reflected_color := TraceRay(point, reflected, 0.001, float32(MAX_INF), spheres, lights, recursion-1)
+
+	reflected_color.R = uint8(float32(local_color.R)*(1-r) + float32(reflected_color.R)*r)
+	reflected_color.G = uint8(float32(local_color.G)*(1-r) + float32(reflected_color.G)*r)
+	reflected_color.B = uint8(float32(local_color.B)*(1-r) + float32(reflected_color.B)*r)
+
+	return reflected_color
 }
 
 func ClosesIntersection(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere) (Sphere, float32) {

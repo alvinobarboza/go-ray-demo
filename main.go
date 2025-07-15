@@ -33,7 +33,7 @@ func main() {
 
 	rl.UnloadImage(checkedIm)
 
-	rl.SetTargetFPS(24)
+	rl.SetTargetFPS(2)
 
 	posX := screenWidth/2 - checked.Width/2
 	posY := screenHeight/2 - checked.Height/2
@@ -45,28 +45,32 @@ func main() {
 	}
 	spheres := []raytracer.Sphere{
 		{
-			Center:   rl.Vector3{X: 0, Y: -1, Z: 3},
-			Radius:   1,
-			Color:    rl.Red,
-			Specular: 200,
+			Center:     rl.Vector3{X: 0, Y: -1, Z: 3},
+			Radius:     1,
+			Color:      rl.Red,
+			Specular:   500,
+			Reflective: 0.2,
 		},
 		{
-			Center:   rl.Vector3{X: 2, Y: 0, Z: 4},
-			Radius:   1,
-			Color:    rl.Blue,
-			Specular: 10,
+			Center:     rl.Vector3{X: 2, Y: 0, Z: 4},
+			Radius:     1,
+			Color:      rl.Blue,
+			Specular:   500,
+			Reflective: 0.3,
 		},
 		{
-			Center:   rl.Vector3{X: -2, Y: 0, Z: 4},
-			Radius:   1,
-			Color:    rl.Green,
-			Specular: 1000,
+			Center:     rl.Vector3{X: -2, Y: 0, Z: 4},
+			Radius:     1,
+			Color:      rl.Green,
+			Specular:   10,
+			Reflective: 0.4,
 		},
 		{
-			Center:   rl.Vector3{X: 0, Y: -5001, Z: 0},
-			Radius:   5000,
-			Color:    rl.Brown,
-			Specular: 2000,
+			Center:     rl.Vector3{X: 0, Y: -5001, Z: 0},
+			Radius:     5000,
+			Color:      rl.Brown,
+			Specular:   1000,
+			Reflective: 0.5,
 		},
 	}
 
@@ -104,7 +108,15 @@ func main() {
 		for x := -c.Width / 2; x < c.Width/2; x++ {
 			for y := -c.Height / 2; y < c.Height/2; y++ {
 				direction := c.CanvasToViewport(x, y)
-				color := raytracer.TraceRay(camera_pos, direction, 1, float32(raytracer.MAX_INF), spheres, lights)
+				color := raytracer.TraceRay(
+					camera_pos,
+					direction,
+					c.View.D,
+					float32(raytracer.MAX_INF),
+					spheres,
+					lights,
+					raytracer.MAX_RECURSION,
+				)
 				c.PutPixel(x, y, color)
 			}
 		}
