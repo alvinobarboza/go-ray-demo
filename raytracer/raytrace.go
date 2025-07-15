@@ -9,20 +9,7 @@ import (
 const MAX_INF int32 = 1_000_000_000
 
 func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []Ligths) rl.Color {
-	closest_t := float32(MAX_INF)
-	var closest_sphere Sphere
-
-	for _, sphere := range spheres {
-		t1, t2 := IntersectRaySphere(O, D, sphere)
-		if t1 < closest_t && t_min < t1 && t1 < t_max {
-			closest_t = t1
-			closest_sphere = sphere
-		}
-		if t2 < closest_t && t_min < t2 && t2 < t_max {
-			closest_t = t2
-			closest_sphere = sphere
-		}
-	}
+	closest_sphere, closest_t := ClosesIntersection(O, D, t_min, t_max, spheres)
 
 	if closest_sphere.Radius == 0 {
 		return rl.White
@@ -54,13 +41,31 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 		Z: D.Z * -1,
 	}
 
-	i := ComputeLighting(point, normal, objToCam, lights, closest_sphere.Specular)
+	i := ComputeLighting(point, normal, objToCam, lights, spheres, closest_sphere.Specular)
 
 	closest_sphere.Color.R = uint8(float32(closest_sphere.Color.R) * i)
 	closest_sphere.Color.G = uint8(float32(closest_sphere.Color.G) * i)
 	closest_sphere.Color.B = uint8(float32(closest_sphere.Color.B) * i)
 
 	return closest_sphere.Color
+}
+
+func ClosesIntersection(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere) (Sphere, float32) {
+	closest_t := float32(MAX_INF)
+	var closest_sphere Sphere
+
+	for _, sphere := range spheres {
+		t1, t2 := IntersectRaySphere(O, D, sphere)
+		if t1 < closest_t && t_min < t1 && t1 < t_max {
+			closest_t = t1
+			closest_sphere = sphere
+		}
+		if t2 < closest_t && t_min < t2 && t2 < t_max {
+			closest_t = t2
+			closest_sphere = sphere
+		}
+	}
+	return closest_sphere, closest_t
 }
 
 func IntersectRaySphere(O, D rl.Vector3, sphere Sphere) (float32, float32) {
@@ -86,7 +91,7 @@ func IntersectRaySphere(O, D rl.Vector3, sphere Sphere) (float32, float32) {
 	return t1, t2
 }
 
-func ComputeLighting(point, normal, objToCam rl.Vector3, lights []Ligths, s int32) float32 {
+func ComputeLighting(point, normal, objToCam rl.Vector3, lights []Ligths, spheres []Sphere, s int32) float32 {
 	var i float32
 
 	for _, light := range lights {
@@ -102,6 +107,13 @@ func ComputeLighting(point, normal, objToCam rl.Vector3, lights []Ligths, s int3
 				L = light.Direction
 			}
 
+			// Shadow
+			shadow_sphere, _ := ClosesIntersection(point, L, 0.001, float32(MAX_INF), spheres)
+			if shadow_sphere.Radius != 0 {
+				continue
+			}
+
+			// Deffuse
 			n_dot_l := normal.X*L.X + normal.Y*L.Y + normal.Z*L.Z
 			if n_dot_l > 0 {
 				length_normal := float32(math.Sqrt(float64(normal.X*normal.X + normal.Y*normal.Y + normal.Z*normal.Z)))
@@ -109,6 +121,7 @@ func ComputeLighting(point, normal, objToCam rl.Vector3, lights []Ligths, s int3
 				i += light.Intensity * n_dot_l / (length_normal * length_L)
 			}
 
+			// Specular
 			if s != -1 {
 				reflected := rl.Vector3{
 					X: 2*normal.X*n_dot_l - L.X,
