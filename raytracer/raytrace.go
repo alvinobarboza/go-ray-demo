@@ -27,7 +27,7 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 		Z: point.Z - closest_sphere.Center.Z,
 	}
 
-	l_normal := float32(math.Sqrt(float64(normal.X*normal.X + normal.Y*normal.Y + normal.Z*normal.Z)))
+	l_normal := vecLen(normal)
 
 	if l_normal > 0 {
 		normal.X = normal.X / l_normal
@@ -76,9 +76,9 @@ func IntersectRaySphere(O, D rl.Vector3, sphere Sphere) (float32, float32) {
 		Z: O.Z - sphere.Center.Z,
 	}
 
-	a := D.X*D.X + D.Y*D.Y + D.Z*D.Z
-	b := 2 * (CO.X*D.X + CO.Y*D.Y + CO.Z*D.Z)
-	c := (CO.X*CO.X + CO.Y*CO.Y + CO.Z*CO.Z) - (r * r)
+	a := vecDot(D, D)
+	b := 2 * (vecDot(CO, D))
+	c := (vecDot(CO, CO)) - (r * r)
 
 	discriminant := b*b - 4*a*c
 	if discriminant < 0 {
@@ -114,24 +114,20 @@ func ComputeLighting(point, normal, objToCam rl.Vector3, lights []Ligths, sphere
 			}
 
 			// Deffuse
-			n_dot_l := normal.X*L.X + normal.Y*L.Y + normal.Z*L.Z
+			n_dot_l := vecDot(normal, L)
 			if n_dot_l > 0 {
-				length_normal := float32(math.Sqrt(float64(normal.X*normal.X + normal.Y*normal.Y + normal.Z*normal.Z)))
-				length_L := float32(math.Sqrt(float64(L.X*L.X + L.Y*L.Y + L.Z*L.Z)))
+				length_normal := vecLen(normal)
+				length_L := vecLen(L)
 				i += light.Intensity * n_dot_l / (length_normal * length_L)
 			}
 
 			// Specular
 			if s != -1 {
-				reflected := rl.Vector3{
-					X: 2*normal.X*n_dot_l - L.X,
-					Y: 2*normal.Y*n_dot_l - L.Y,
-					Z: 2*normal.Z*n_dot_l - L.Z,
-				}
-				r_dot_oc := reflected.X*objToCam.X + reflected.Y*objToCam.Y + reflected.Z*objToCam.Z
+				reflected := ReflectRay(L, normal)
+				r_dot_oc := vecDot(reflected, objToCam)
 				if r_dot_oc > 0 {
-					length_reflected := float32(math.Sqrt(float64(reflected.X*reflected.X + reflected.Y*reflected.Y + reflected.Z*reflected.Z)))
-					length_objToCam := float32(math.Sqrt(float64(objToCam.X*objToCam.X + objToCam.Y*objToCam.Y + objToCam.Z*objToCam.Z)))
+					length_reflected := vecLen(reflected)
+					length_objToCam := vecLen(objToCam)
 					i += light.Intensity * float32(math.Pow(float64(r_dot_oc/(length_reflected*length_objToCam)), float64(s)))
 				}
 			}
@@ -143,4 +139,21 @@ func ComputeLighting(point, normal, objToCam rl.Vector3, lights []Ligths, sphere
 	}
 
 	return i
+}
+
+func ReflectRay(ray, normal rl.Vector3) rl.Vector3 {
+	r_dot_n := vecDot(ray, normal)
+	return rl.Vector3{
+		X: 2*normal.X*r_dot_n - ray.X,
+		Y: 2*normal.Y*r_dot_n - ray.Y,
+		Z: 2*normal.Z*r_dot_n - ray.Z,
+	}
+}
+
+func vecDot(v1, v2 rl.Vector3) float32 {
+	return v1.X*v2.X + v1.Y*v2.Y + v1.Z*v2.Z
+}
+
+func vecLen(v rl.Vector3) float32 {
+	return float32(math.Sqrt(float64(vecDot(v, v))))
 }
