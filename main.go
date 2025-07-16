@@ -38,10 +38,17 @@ func main() {
 	posX := screenWidth/2 - checked.Width/2
 	posY := screenHeight/2 - checked.Height/2
 
-	camera_pos := rl.Vector3{
-		X: 0,
-		Y: 0,
-		Z: 0,
+	camera := raytracer.Camera{
+		Position: rl.Vector3{
+			X: 0,
+			Y: 0,
+			Z: 0,
+		},
+		Direction: rl.Vector3{
+			X: 0,
+			Y: 0,
+			Z: 0,
+		},
 	}
 	spheres := []raytracer.Sphere{
 		{
@@ -66,8 +73,8 @@ func main() {
 			Reflective: 0.4,
 		},
 		{
-			Center:     rl.Vector3{X: 0, Y: -5001, Z: 0},
-			Radius:     5000,
+			Center:     rl.Vector3{X: 0, Y: -501, Z: 0},
+			Radius:     500,
 			Color:      rl.Brown,
 			Specular:   1000,
 			Reflective: 0.5,
@@ -93,23 +100,24 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		if rl.IsKeyDown(rl.KeyW) {
-			spheres[2].Center.Z += 1 * rl.GetFrameTime()
+			camera.Position.Z += 1 * rl.GetFrameTime()
 		}
 		if rl.IsKeyDown(rl.KeyS) {
-			spheres[2].Center.Z -= 1 * rl.GetFrameTime()
+			camera.Position.Z -= 1 * rl.GetFrameTime()
 		}
 		if rl.IsKeyDown(rl.KeyA) {
-			spheres[2].Center.X -= 1 * rl.GetFrameTime()
+			camera.Position.X -= 1 * rl.GetFrameTime()
 		}
 		if rl.IsKeyDown(rl.KeyD) {
-			spheres[2].Center.X += 1 * rl.GetFrameTime()
+			camera.Position.X += 1 * rl.GetFrameTime()
 		}
 
 		for x := -c.Width / 2; x < c.Width/2; x++ {
 			for y := -c.Height / 2; y < c.Height/2; y++ {
 				direction := c.CanvasToViewport(x, y)
+
 				color := raytracer.TraceRay(
-					camera_pos,
+					camera.Position,
 					direction,
 					c.View.D,
 					float32(raytracer.MAX_INF),

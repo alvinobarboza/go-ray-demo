@@ -24,3 +24,8 @@ type Ligths struct {
 	Direction rl.Vector3
 	Position  rl.Vector3
 }
+
+type Camera struct {
+	Position  rl.Vector3
+	Direction rl.Vector3
+}
