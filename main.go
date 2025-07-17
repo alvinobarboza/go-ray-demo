@@ -140,8 +140,6 @@ func main() {
 		rl.EndDrawing()
 
 		if rl.IsKeyDown(rl.KeyQ) {
-			rl.UnloadTexture(checked)
-			rl.CloseWindow()
 			break
 		}
 	}
