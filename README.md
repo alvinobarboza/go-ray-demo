@@ -1,17 +1,16 @@
 # Software Ray Tracer
 
-Calculations done by software and passed to an array of raylib pixels to be render on a texture the size of the screen
+Calculations done by software and passed to an array of [raylib](https://github.com/gen2brain/raylib-go) pixels to be render on a texture the size of the screen
 
 Raytracer implementation from this book;
 
 https://gabrielgambetta.com/computer-graphics-from-scratch/
 
 -   Part I: Raytracing
-
-    Basic Raytracing = OK
-    Light = OK
-    Shadows and Reflections = OK
-    Extending the Raytracer = pending
+    -   Basic Raytracing = Done
+    -   Light = Done
+    -   Shadows and Reflections = Done
+    -   Extending the Raytracer = Pending
 
 # Image from raytracer
 
