@@ -40,14 +40,14 @@ func main() {
 
 	camera := raytracer.Camera{
 		Position: rl.Vector3{
-			X: 0,
+			X: 3,
 			Y: 0,
-			Z: 0,
+			Z: 1,
 		},
-		Direction: rl.Vector3{
-			X: 0,
-			Y: 0,
-			Z: 0,
+		Direction: [][]float32{
+			{0.7071, 0, -0.7071},
+			{0, 1, 0},
+			{0.7071, 0, 0.7071},
 		},
 	}
 	spheres := []raytracer.Sphere{
@@ -115,10 +115,11 @@ func main() {
 		for x := -c.Width / 2; x < c.Width/2; x++ {
 			for y := -c.Height / 2; y < c.Height/2; y++ {
 				direction := c.CanvasToViewport(x, y)
+				newDirection := raytracer.MatrixMultiplication(camera.Direction, direction)
 
 				color := raytracer.TraceRay(
 					camera.Position,
-					direction,
+					newDirection,
 					c.View.D,
 					float32(raytracer.MAX_INF),
 					spheres,

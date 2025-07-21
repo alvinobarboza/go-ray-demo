@@ -13,3 +13,15 @@ func VecDot(v1, v2 rl.Vector3) float32 {
 func VecLen(v rl.Vector3) float32 {
 	return float32(math.Sqrt(float64(VecDot(v, v))))
 }
+
+func MatrixMultiplication(m [][]float32, v rl.Vector3) rl.Vector3 {
+	result := []float32{0, 0, 0}
+	vec := []float32{v.X, v.Y, v.Z}
+
+	for i := range 3 {
+		for j := range 3 {
+			result[i] += vec[j] * m[i][j]
+		}
+	}
+	return rl.Vector3{X: result[0], Y: result[1], Z: result[2]}
+}
