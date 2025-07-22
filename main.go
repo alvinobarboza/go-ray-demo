@@ -8,8 +8,8 @@ import (
 
 func main() {
 	const (
-		screenWidth  int32 = 1000
-		screenHeight int32 = 1000
+		screenWidth  int32 = 800
+		screenHeight int32 = 450
 	)
 
 	rl.InitWindow(screenWidth, screenHeight, "go raytracer - raylib screen texture")
@@ -23,7 +23,7 @@ func main() {
 		Pixels: pixels,
 		Width:  width,
 		Height: height,
-		View:   raytracer.View{X: 1, Y: 1, D: 1},
+		View:   raytracer.View{X: 1, Y: .6, D: 1},
 	}
 
 	checkedIm := rl.GenImageColor(int(width), int(height), rl.White)
@@ -33,7 +33,7 @@ func main() {
 
 	rl.UnloadImage(checkedIm)
 
-	rl.SetTargetFPS(2)
+	rl.SetTargetFPS(30)
 
 	posX := screenWidth/2 - checked.Width/2
 	posY := screenHeight/2 - checked.Height/2
@@ -44,10 +44,15 @@ func main() {
 			Y: 0,
 			Z: 1,
 		},
-		Direction: rl.Vector3{
+		Rotation: rl.Vector3{
 			X: 0,
 			Y: 90,
 			Z: 0,
+		},
+		Direction: rl.Vector3{
+			X: 0,
+			Y: 0,
+			Z: 1,
 		},
 	}
 	spheres := []raytracer.Sphere{
@@ -67,6 +72,13 @@ func main() {
 		},
 		{
 			Center:     rl.Vector3{X: -2, Y: 0, Z: 4},
+			Radius:     1,
+			Color:      rl.Green,
+			Specular:   10,
+			Reflective: 0.4,
+		},
+		{
+			Center:     rl.Vector3{X: -2, Y: 0, Z: -4},
 			Radius:     1,
 			Color:      rl.Green,
 			Specular:   10,
@@ -100,30 +112,32 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		if rl.IsKeyDown(rl.KeyW) {
-			camera.Position.Z += 1 * rl.GetFrameTime()
+			camera.MoveForward(5 * rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyS) {
-			camera.Position.Z -= 1 * rl.GetFrameTime()
+			camera.MoveBackward(5 * rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyA) {
-			camera.Position.X -= 1 * rl.GetFrameTime()
+			camera.MoveLeft(5 * rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyD) {
-			camera.Position.X += 1 * rl.GetFrameTime()
+			camera.MoveRight(5 * rl.GetFrameTime())
 		}
 
 		if rl.IsKeyDown(rl.KeyRight) {
-			camera.Direction.Y -= 10 * rl.GetFrameTime()
+			camera.Rotation.Y -= 80 * rl.GetFrameTime()
 		}
-
 		if rl.IsKeyDown(rl.KeyLeft) {
-			camera.Direction.Y += 10 * rl.GetFrameTime()
+			camera.Rotation.Y += 80 * rl.GetFrameTime()
 		}
 
-		for x := -c.Width / 2; x < c.Width/2; x++ {
-			for y := -c.Height / 2; y < c.Height/2; y++ {
+		startW, endW := -c.Width/2, c.Width/2
+		startH, endH := -c.Height/2, c.Height/2
+
+		for x := startW; x < endW; x++ {
+			for y := startH; y < endH; y++ {
 				direction := c.CanvasToViewport(x, y)
-				newDirection := raytracer.RotateXYZ(camera.Direction, direction)
+				newDirection := raytracer.RotateXYZ(camera.Rotation, direction)
 
 				color := raytracer.TraceRay(
 					camera.Position,

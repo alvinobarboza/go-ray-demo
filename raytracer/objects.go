@@ -1,6 +1,8 @@
 package raytracer
 
-import rl "github.com/gen2brain/raylib-go/raylib"
+import (
+	rl "github.com/gen2brain/raylib-go/raylib"
+)
 
 type lightType int
 
@@ -27,5 +29,30 @@ type Ligths struct {
 
 type Camera struct {
 	Position  rl.Vector3
+	Rotation  rl.Vector3
 	Direction rl.Vector3
+}
+
+func (c *Camera) MoveForward(unit float32) {
+	direction := RotateXYZ(c.Rotation, c.Direction)
+	lenD := VecLen(direction)
+	normalDirection := rl.Vector3{
+		X: direction.X / lenD,
+		Y: direction.Y / lenD,
+		Z: direction.Z / lenD,
+	}
+	c.Position.X += normalDirection.X * unit
+	c.Position.Y += normalDirection.Y * unit
+	c.Position.Z += normalDirection.Z * unit
+}
+
+func (c *Camera) MoveBackward(unit float32) {
+	c.MoveForward(-unit)
+}
+
+func (c *Camera) MoveLeft(unit float32) {
+}
+
+func (c *Camera) MoveRight(unit float32) {
+	c.MoveLeft(-unit)
 }

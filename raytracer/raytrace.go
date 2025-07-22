@@ -36,35 +36,35 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 		normal.Z = normal.Z / l_normal
 	}
 
-	objToCam := rl.Vector3{
-		X: D.X * -1,
-		Y: D.Y * -1,
-		Z: D.Z * -1,
-	}
+	// objToCam := rl.Vector3{
+	// 	X: D.X * -1,
+	// 	Y: D.Y * -1,
+	// 	Z: D.Z * -1,
+	// }
 
-	i := ComputeLighting(point, normal, objToCam, lights, spheres, closest_sphere.Specular)
+	// i := ComputeLighting(point, normal, objToCam, lights, spheres, closest_sphere.Specular)
 
-	closest_sphere.Color.R = uint8(float32(closest_sphere.Color.R) * i)
-	closest_sphere.Color.G = uint8(float32(closest_sphere.Color.G) * i)
-	closest_sphere.Color.B = uint8(float32(closest_sphere.Color.B) * i)
+	// closest_sphere.Color.R = uint8(float32(closest_sphere.Color.R) * i)
+	// closest_sphere.Color.G = uint8(float32(closest_sphere.Color.G) * i)
+	// closest_sphere.Color.B = uint8(float32(closest_sphere.Color.B) * i)
 
 	local_color := closest_sphere.Color
 
-	if recursion <= 0 || closest_sphere.Reflective <= 0 {
-		return local_color
-	}
+	// if recursion <= 0 || closest_sphere.Reflective <= 0 {
+	return local_color
+	// }
 
-	r := closest_sphere.Reflective
+	// r := closest_sphere.Reflective
 
-	reflected := ReflectRay(objToCam, normal)
+	// reflected := ReflectRay(objToCam, normal)
 
-	reflected_color := TraceRay(point, reflected, 0.001, float32(MAX_INF), spheres, lights, recursion-1)
+	// reflected_color := TraceRay(point, reflected, 0.001, float32(MAX_INF), spheres, lights, recursion-1)
 
-	reflected_color.R = uint8(float32(local_color.R)*(1-r) + float32(reflected_color.R)*r)
-	reflected_color.G = uint8(float32(local_color.G)*(1-r) + float32(reflected_color.G)*r)
-	reflected_color.B = uint8(float32(local_color.B)*(1-r) + float32(reflected_color.B)*r)
+	// reflected_color.R = uint8(float32(local_color.R)*(1-r) + float32(reflected_color.R)*r)
+	// reflected_color.G = uint8(float32(local_color.G)*(1-r) + float32(reflected_color.G)*r)
+	// reflected_color.B = uint8(float32(local_color.B)*(1-r) + float32(reflected_color.B)*r)
 
-	return reflected_color
+	// return reflected_color
 }
 
 func ClosesIntersection(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere) (Sphere, float32) {
