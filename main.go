@@ -44,10 +44,10 @@ func main() {
 			Y: 0,
 			Z: 1,
 		},
-		Direction: [][]float32{
-			{0.7071, 0, -0.7071},
-			{0, 1, 0},
-			{0.7071, 0, 0.7071},
+		Direction: rl.Vector3{
+			X: 0,
+			Y: 90,
+			Z: 0,
 		},
 	}
 	spheres := []raytracer.Sphere{
@@ -112,10 +112,18 @@ func main() {
 			camera.Position.X += 1 * rl.GetFrameTime()
 		}
 
+		if rl.IsKeyDown(rl.KeyRight) {
+			camera.Direction.Y -= 10 * rl.GetFrameTime()
+		}
+
+		if rl.IsKeyDown(rl.KeyLeft) {
+			camera.Direction.Y += 10 * rl.GetFrameTime()
+		}
+
 		for x := -c.Width / 2; x < c.Width/2; x++ {
 			for y := -c.Height / 2; y < c.Height/2; y++ {
 				direction := c.CanvasToViewport(x, y)
-				newDirection := raytracer.MatrixMultiplication(camera.Direction, direction)
+				newDirection := raytracer.RotateXYZ(camera.Direction, direction)
 
 				color := raytracer.TraceRay(
 					camera.Position,

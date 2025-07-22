@@ -27,5 +27,5 @@ type Ligths struct {
 
 type Camera struct {
 	Position  rl.Vector3
-	Direction [][]float32
+	Direction rl.Vector3
 }
