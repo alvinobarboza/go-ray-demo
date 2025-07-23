@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go-ray-demo/raytracer"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -133,6 +134,12 @@ func main() {
 		if rl.IsKeyDown(rl.KeyLeft) {
 			camera.Rotation.Y += turnSpeed * rl.GetFrameTime()
 		}
+		if rl.IsKeyDown(rl.KeyUp) {
+			camera.Rotation.X += turnSpeed * rl.GetFrameTime()
+		}
+		if rl.IsKeyDown(rl.KeyDown) {
+			camera.Rotation.X -= turnSpeed * rl.GetFrameTime()
+		}
 
 		startW, endW := -c.Width/2, c.Width/2
 		startH, endH := -c.Height/2, c.Height/2
@@ -162,6 +169,9 @@ func main() {
 
 		rl.DrawTexture(checked, posX, posY, rl.White)
 		rl.DrawFPS(10, 10)
+		rl.DrawText(
+			fmt.Sprintf("Cam-> \nX:%02f Y:%02f Z:%02f", camera.Position.X, camera.Position.Y, camera.Position.Z),
+			10, 50, 15, rl.Red)
 
 		rl.EndDrawing()
 
