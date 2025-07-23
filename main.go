@@ -161,9 +161,15 @@ func main() {
 		}
 		if rl.IsKeyDown(rl.KeyUp) {
 			camera.Rotation.X += turnSpeed * rl.GetFrameTime()
+			if camera.Rotation.X >= 90 {
+				camera.Rotation.X = 89
+			}
 		}
-		if rl.IsKeyDown(rl.KeyDown) {
+		if rl.IsKeyDown(rl.KeyDown) && camera.Rotation.X < 90 {
 			camera.Rotation.X -= turnSpeed * rl.GetFrameTime()
+			if camera.Rotation.X <= -90 {
+				camera.Rotation.X = -89
+			}
 		}
 
 		startW, endW := -c.Width/2, c.Width/2
@@ -221,8 +227,12 @@ func main() {
 		rl.DrawTexture(checked, posX, posY, rl.White)
 		rl.DrawFPS(10, 10)
 		rl.DrawText(
-			fmt.Sprintf("Cam-> \nX:%02f Y:%02f Z:%02f", camera.Position.X, camera.Position.Y, camera.Position.Z),
-			10, 50, 15, rl.Red)
+			fmt.Sprintf("Cam-> \nX:%01f \nY:%01f \nZ:%01f", camera.Position.X, camera.Position.Y, camera.Position.Z),
+			10, 30, 20, rl.White)
+		rl.DrawText("Move: A/W/S/D\nControl Camera: UP/DOWN/LEFT/RIGHT",
+			10, 120, 20, rl.White)
+		rl.DrawText("I'm a bit too lazy to make \nit work with the mouse...",
+			10, 160, 10, rl.White)
 
 		rl.EndDrawing()
 
