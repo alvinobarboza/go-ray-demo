@@ -115,6 +115,8 @@ func main() {
 		},
 	}
 
+	// Before main loop, spaw 4(fixed) goroutines that will listen in a channel for tasks
+	// This return a func which accepts a func as task to send in the chan in its scope
 	doTask := func() func(task func(), c bool) {
 		tasks := make(chan func())
 
@@ -167,6 +169,12 @@ func main() {
 		startW, endW := -c.Width/2, c.Width/2
 		startH, endH := -c.Height/2, c.Height/2
 
+		// Manual task separation, for tasks
+		// -x,y
+		// -x,-y
+		// x,y
+		// x,-y
+
 		listT := [][]int32{
 			{startW, 0, 0, endH},
 			{startW, 0, startH, 0},
@@ -197,6 +205,12 @@ func main() {
 				wg.Done()
 			}, false)
 		}
+
+		// Can run without a waiting, but has too many tearing in the image,
+		// as the pixel arrey will have old pixel data..
+		// The tasks are run in parallel, so they will fill
+		// pixel data when finished, not in this loop
+		// wait, prevents that
 		wg.Wait()
 
 		rl.UpdateTexture(checked, c.Pixels)
