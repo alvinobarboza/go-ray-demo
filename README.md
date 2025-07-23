@@ -10,7 +10,9 @@ https://gabrielgambetta.com/computer-graphics-from-scratch/
     -   Basic Raytracing = Done
     -   Light = Done
     -   Shadows and Reflections = Done
-    -   Extending the Raytracer = Pending
+    -   Extending the Raytracer
+        -   Free camera movement = Done
+        -   Multithreading = Done(Four fixed reusable goroutines)
 
 # Image from raytracer
 
