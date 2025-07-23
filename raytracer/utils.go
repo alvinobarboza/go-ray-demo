@@ -19,6 +19,15 @@ func VecLen(v rl.Vector3) float32 {
 	return float32(math.Sqrt(float64(VecDot(v, v))))
 }
 
+func VecNormal(v rl.Vector3) rl.Vector3 {
+	n := VecLen(v)
+	return rl.Vector3{
+		X: v.X / n,
+		Y: v.Y / n,
+		Z: v.Z / n,
+	}
+}
+
 func MatrixMultiplication(m []float32, v rl.Vector3) rl.Vector3 {
 	result := []float32{0, 0, 0}
 	vec := []float32{v.X, v.Y, v.Z}

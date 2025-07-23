@@ -10,8 +10,8 @@ import (
 
 func main() {
 	const (
-		screenWidth  int32 = 800
-		screenHeight int32 = 450
+		screenWidth  int32 = 1000
+		screenHeight int32 = 1000
 
 		moveSpeed float32 = 5
 		turnSpeed float32 = 80
@@ -28,7 +28,7 @@ func main() {
 		Pixels: pixels,
 		Width:  width,
 		Height: height,
-		View:   raytracer.View{X: 1, Y: .6, D: 1},
+		View:   raytracer.View{X: 1, Y: 1, D: 1},
 	}
 
 	checkedIm := rl.GenImageColor(int(width), int(height), rl.White)
@@ -45,13 +45,13 @@ func main() {
 
 	camera := raytracer.Camera{
 		Position: rl.Vector3{
-			X: 3,
+			X: 0,
 			Y: 0,
-			Z: 1,
+			Z: 0,
 		},
 		Rotation: rl.Vector3{
 			X: 0,
-			Y: 90,
+			Y: 0,
 			Z: 0,
 		},
 		Direction: rl.Vector3{
@@ -83,11 +83,13 @@ func main() {
 			Reflective: 0.1,
 		},
 		{
-			Center:     rl.Vector3{X: -2, Y: 0, Z: -4},
-			Radius:     1,
-			Color:      rl.Green,
-			Specular:   10,
-			Reflective: 0.2,
+			Center:          rl.Vector3{X: -0.4, Y: .1, Z: 2},
+			Radius:          0.3,
+			Color:           rl.Blank,
+			Specular:        10,
+			Reflective:      1,
+			Opacity:         .5,
+			RefractionIndex: 1.333,
 		},
 		{
 			Center:     rl.Vector3{X: 0, Y: -501, Z: 0},
@@ -151,6 +153,12 @@ func main() {
 		}
 		if rl.IsKeyDown(rl.KeyD) {
 			camera.MoveRight(moveSpeed * rl.GetFrameTime())
+		}
+		if rl.IsKeyDown(rl.KeySpace) {
+			camera.Position.Y += moveSpeed * rl.GetFrameTime()
+		}
+		if rl.IsKeyDown(rl.KeyLeftControl) {
+			camera.Position.Y -= moveSpeed * rl.GetFrameTime()
 		}
 
 		if rl.IsKeyDown(rl.KeyRight) {

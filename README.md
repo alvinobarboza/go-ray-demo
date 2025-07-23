@@ -13,6 +13,7 @@ https://gabrielgambetta.com/computer-graphics-from-scratch/
     -   Extending the Raytracer
         -   Free camera movement = Done
         -   Multithreading = Done(Four fixed reusable goroutines)
+        -   Transparency = Done
 
 # Image from raytracer
 

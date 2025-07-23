@@ -13,11 +13,13 @@ const (
 )
 
 type Sphere struct {
-	Center     rl.Vector3
-	Radius     int32
-	Color      rl.Color
-	Specular   int32
-	Reflective float32
+	Center          rl.Vector3
+	Radius          float32
+	Color           rl.Color
+	Specular        int32
+	Reflective      float32
+	Opacity         float32
+	RefractionIndex float32
 }
 
 type Ligths struct {

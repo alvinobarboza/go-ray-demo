@@ -50,7 +50,7 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 
 	local_color := closest_sphere.Color
 
-	if recursion <= 0 || closest_sphere.Reflective <= 0 {
+	if recursion <= 0 || closest_sphere.Reflective <= 0 || closest_sphere.Opacity <= 0 {
 		return local_color
 	}
 
@@ -63,6 +63,16 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 	reflected_color.R = uint8(float32(local_color.R)*(1-r) + float32(reflected_color.R)*r)
 	reflected_color.G = uint8(float32(local_color.G)*(1-r) + float32(reflected_color.G)*r)
 	reflected_color.B = uint8(float32(local_color.B)*(1-r) + float32(reflected_color.B)*r)
+
+	if closest_sphere.Opacity > 0 {
+		o := closest_sphere.Opacity
+		// TODO: Refraction
+		transparentColor := TraceRay(point, D, t_min, t_max, spheres, lights, recursion-1)
+
+		reflected_color.R = uint8(float32(reflected_color.R)*(1-o) + float32(transparentColor.R)*o)
+		reflected_color.G = uint8(float32(reflected_color.G)*(1-o) + float32(transparentColor.G)*o)
+		reflected_color.B = uint8(float32(reflected_color.B)*(1-o) + float32(transparentColor.B)*o)
+	}
 
 	return reflected_color
 }
@@ -86,7 +96,7 @@ func ClosesIntersection(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere)
 }
 
 func IntersectRaySphere(O, D rl.Vector3, sphere Sphere) (float32, float32) {
-	r := float32(sphere.Radius)
+	r := sphere.Radius
 	CO := rl.Vector3{
 		X: O.X - sphere.Center.X,
 		Y: O.Y - sphere.Center.Y,
