@@ -13,7 +13,7 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 	closest_sphere, closest_t := ClosesIntersection(O, D, t_min, t_max, spheres)
 
 	if closest_sphere.Radius == 0 {
-		return rl.Black
+		return rl.Gray
 	}
 
 	point := rl.Vector3{
