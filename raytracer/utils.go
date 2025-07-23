@@ -54,3 +54,11 @@ func RotateXYZ(angle rl.Vector3, v rl.Vector3) rl.Vector3 {
 
 	return value
 }
+
+func CrossProdutc(v, w rl.Vector3) rl.Vector3 {
+	return rl.Vector3{
+		X: v.Y*w.Z - v.Z*w.Y,
+		Y: v.Z*w.X - v.X*w.Z,
+		Z: v.X*w.Y - v.Y*w.X,
+	}
+}

@@ -51,6 +51,18 @@ func (c *Camera) MoveBackward(unit float32) {
 }
 
 func (c *Camera) MoveLeft(unit float32) {
+	direction := RotateXYZ(c.Rotation, c.Direction)
+	sideDirection := CrossProdutc(direction, rl.Vector3{Y: 1})
+
+	lenD := VecLen(sideDirection)
+	normalDirection := rl.Vector3{
+		X: sideDirection.X / lenD,
+		Y: sideDirection.Y / lenD,
+		Z: sideDirection.Z / lenD,
+	}
+	c.Position.X += normalDirection.X * unit
+	c.Position.Y += normalDirection.Y * unit
+	c.Position.Z += normalDirection.Z * unit
 }
 
 func (c *Camera) MoveRight(unit float32) {

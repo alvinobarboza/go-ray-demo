@@ -10,6 +10,9 @@ func main() {
 	const (
 		screenWidth  int32 = 800
 		screenHeight int32 = 450
+
+		moveSpeed float32 = 5
+		turnSpeed float32 = 80
 	)
 
 	rl.InitWindow(screenWidth, screenHeight, "go raytracer - raylib screen texture")
@@ -112,23 +115,23 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		if rl.IsKeyDown(rl.KeyW) {
-			camera.MoveForward(5 * rl.GetFrameTime())
+			camera.MoveForward(moveSpeed * rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyS) {
-			camera.MoveBackward(5 * rl.GetFrameTime())
+			camera.MoveBackward(moveSpeed * rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyA) {
-			camera.MoveLeft(5 * rl.GetFrameTime())
+			camera.MoveLeft(moveSpeed * rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyD) {
-			camera.MoveRight(5 * rl.GetFrameTime())
+			camera.MoveRight(moveSpeed * rl.GetFrameTime())
 		}
 
 		if rl.IsKeyDown(rl.KeyRight) {
-			camera.Rotation.Y -= 80 * rl.GetFrameTime()
+			camera.Rotation.Y -= turnSpeed * rl.GetFrameTime()
 		}
 		if rl.IsKeyDown(rl.KeyLeft) {
-			camera.Rotation.Y += 80 * rl.GetFrameTime()
+			camera.Rotation.Y += turnSpeed * rl.GetFrameTime()
 		}
 
 		startW, endW := -c.Width/2, c.Width/2
