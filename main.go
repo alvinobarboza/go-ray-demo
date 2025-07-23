@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-ray-demo/raytracer"
+	"sync"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -114,6 +115,28 @@ func main() {
 		},
 	}
 
+	doTask := func() func(task func(), c bool) {
+		tasks := make(chan func())
+
+		for range 4 {
+			go func() {
+				for t := range tasks {
+					t()
+				}
+			}()
+		}
+
+		return func(task func(), c bool) {
+			if c {
+				close(tasks)
+				return
+			}
+			tasks <- task
+		}
+	}()
+
+	var wg sync.WaitGroup
+
 	for !rl.WindowShouldClose() {
 		if rl.IsKeyDown(rl.KeyW) {
 			camera.MoveForward(moveSpeed * rl.GetFrameTime())
@@ -144,23 +167,37 @@ func main() {
 		startW, endW := -c.Width/2, c.Width/2
 		startH, endH := -c.Height/2, c.Height/2
 
-		for x := startW; x < endW; x++ {
-			for y := startH; y < endH; y++ {
-				direction := c.CanvasToViewport(x, y)
-				newDirection := raytracer.RotateXYZ(camera.Rotation, direction)
-
-				color := raytracer.TraceRay(
-					camera.Position,
-					newDirection,
-					c.View.D,
-					float32(raytracer.MAX_INF),
-					spheres,
-					lights,
-					raytracer.MAX_RECURSION,
-				)
-				c.PutPixel(x, y, color)
-			}
+		listT := [][]int32{
+			{startW, 0, 0, endH},
+			{startW, 0, startH, 0},
+			{0, endW, 0, endH},
+			{0, endW, startH, 0},
 		}
+
+		for _, i := range listT {
+			wg.Add(1)
+			doTask(func() {
+				for x := i[0]; x < i[1]; x++ {
+					for y := i[2]; y < i[3]; y++ {
+						direction := c.CanvasToViewport(x, y)
+						newDirection := raytracer.RotateXYZ(camera.Rotation, direction)
+
+						color := raytracer.TraceRay(
+							camera.Position,
+							newDirection,
+							c.View.D,
+							float32(raytracer.MAX_INF),
+							spheres,
+							lights,
+							raytracer.MAX_RECURSION,
+						)
+						c.PutPixel(x, y, color)
+					}
+				}
+				wg.Done()
+			}, false)
+		}
+		wg.Wait()
 
 		rl.UpdateTexture(checked, c.Pixels)
 
