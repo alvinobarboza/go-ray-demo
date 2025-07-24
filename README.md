@@ -14,7 +14,14 @@ https://gabrielgambetta.com/computer-graphics-from-scratch/
         -   Free camera movement = Done
         -   Multithreading = Done(Four fixed reusable goroutines)
         -   Transparency = Done
+        -   Refraction = Done
 
 # Image from raytracer
+
+## _Expanding the Raytracer_
+
+![Frame, framerate and tips](/img2.png?raw=true 'Frame, framerate and tips')
+
+## Fisrt Implementation
 
 ![Frame and framerate](/img.png?raw=true 'Frame and framerate')
