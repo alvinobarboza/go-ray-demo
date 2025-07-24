@@ -83,11 +83,11 @@ func main() {
 			Reflective: 0.1,
 		},
 		{
-			Center:          rl.Vector3{X: -0.4, Y: .1, Z: 2},
-			Radius:          0.3,
+			Center:          rl.Vector3{X: -.5, Y: 0, Z: 2},
+			Radius:          .4,
 			Color:           rl.Blank,
-			Specular:        10,
-			Reflective:      0.02,
+			Specular:        100,
+			Reflective:      0.5,
 			Opacity:         .5,
 			RefractionIndex: 1.333,
 		},
@@ -142,6 +142,19 @@ func main() {
 	var wg sync.WaitGroup
 
 	for !rl.WindowShouldClose() {
+		if rl.IsKeyDown(rl.KeyU) {
+			spheres[3].Center.Z += 2 * rl.GetFrameTime()
+		}
+		if rl.IsKeyDown(rl.KeyJ) {
+			spheres[3].Center.Z -= 2 * rl.GetFrameTime()
+		}
+		if rl.IsKeyDown(rl.KeyH) {
+			spheres[3].Center.X -= 2 * rl.GetFrameTime()
+		}
+		if rl.IsKeyDown(rl.KeyK) {
+			spheres[3].Center.X += 2 * rl.GetFrameTime()
+		}
+
 		if rl.IsKeyDown(rl.KeyW) {
 			camera.MoveForward(moveSpeed * rl.GetFrameTime())
 		}
