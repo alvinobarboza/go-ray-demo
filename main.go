@@ -15,6 +15,8 @@ func main() {
 
 		moveSpeed float32 = 5
 		turnSpeed float32 = 80
+
+		threads int = 8
 	)
 
 	rl.InitWindow(screenWidth, screenHeight, "go raytracer - raylib screen texture")
@@ -117,12 +119,12 @@ func main() {
 		},
 	}
 
-	// Before main loop, spaw 4(fixed) goroutines that will listen in a channel for tasks
+	// Before main loop, spaw "threads" amount of goroutines that will listen in a channel for tasks
 	// This return a func which accepts a func as task to send in the chan in its scope
 	doTask := func() func(task func(), c bool) {
 		tasks := make(chan func())
 
-		for range 4 {
+		for range threads {
 			go func() {
 				for t := range tasks {
 					t()
@@ -140,6 +142,43 @@ func main() {
 	}()
 
 	var wg sync.WaitGroup
+
+	xs, xe, ys, ye := -c.Width/2, c.Width/2, -c.Height/2, c.Height/2
+
+	columnRange := make([]int32, 0)
+	for i := xs; i < xe; i++ {
+		columnRange = append(columnRange, i)
+	}
+
+	rowRange := make([]int32, 0)
+	for j := ys; j < ye; j++ {
+		rowRange = append(rowRange, j)
+	}
+
+	matrixSides := 100
+
+	task := func(csx, cex, csy, cey int) func() {
+		return func() {
+			for xx := csx; xx < cex; xx++ {
+				for yy := csy; yy < cey; yy++ {
+					direction := c.CanvasToViewport(columnRange[xx], rowRange[yy])
+					newDirection := raytracer.RotateXYZ(camera.Rotation, direction)
+
+					color := raytracer.TraceRay(
+						camera.Position,
+						newDirection,
+						c.View.D,
+						float32(raytracer.MAX_INF),
+						spheres,
+						lights,
+						raytracer.MAX_RECURSION,
+					)
+					c.PutPixel(columnRange[xx], rowRange[yy], color)
+				}
+			}
+			wg.Done()
+		}
+	}
 
 	for !rl.WindowShouldClose() {
 		if rl.IsKeyDown(rl.KeyU) {
@@ -193,8 +232,46 @@ func main() {
 			}
 		}
 
-		startW, endW := -c.Width/2, c.Width/2
-		startH, endH := -c.Height/2, c.Height/2
+		cStartX := 0
+		cEndX := 0
+		cX := 0
+
+		for i := range columnRange {
+			cX++
+			if cX == matrixSides || i+1 == len(columnRange) {
+				cStartX = cEndX
+				cEndX += cX
+
+				cStartY := 0
+				cEndY := 0
+				cY := 0
+				for j := range rowRange {
+					cY++
+					if cY == matrixSides {
+						cStartY = cEndY
+						cEndY += cY
+						cX = 0
+						cY = 0
+
+						wg.Add(1)
+						doTask(task(cStartX, cEndX, cStartY, cEndY), false)
+						continue
+					}
+					if j+1 == len(rowRange) {
+						cStartY = cEndY
+						cEndY += cY
+						cX = 0
+						cY = 0
+						wg.Add(1)
+						doTask(task(cStartX, cEndX, cStartY, cEndY), false)
+						continue
+					}
+				}
+			}
+		}
+
+		// startW, endW := -c.Width/2, c.Width/2
+		// startH, endH := -c.Height/2, c.Height/2
 
 		// Manual task separation, for tasks
 		// -x,y
@@ -202,36 +279,36 @@ func main() {
 		// x,y
 		// x,-y
 
-		listT := [][]int32{
-			{startW, 0, 0, endH},
-			{startW, 0, startH, 0},
-			{0, endW, 0, endH},
-			{0, endW, startH, 0},
-		}
+		// listT := [][]int32{
+		// 	{startW, 0, 0, endH},
+		// 	{startW, 0, startH, 0},
+		// 	{0, endW, 0, endH},
+		// 	{0, endW, startH, 0},
+		// }
 
-		for _, i := range listT {
-			wg.Add(1)
-			doTask(func() {
-				for x := i[0]; x < i[1]; x++ {
-					for y := i[2]; y < i[3]; y++ {
-						direction := c.CanvasToViewport(x, y)
-						newDirection := raytracer.RotateXYZ(camera.Rotation, direction)
+		// for _, i := range listT {
+		// 	wg.Add(1)
+		// 	doTask(func() {
+		// 		for x := i[0]; x < i[1]; x++ {
+		// 			for y := i[2]; y < i[3]; y++ {
+		// 				direction := c.CanvasToViewport(x, y)
+		// 				newDirection := raytracer.RotateXYZ(camera.Rotation, direction)
 
-						color := raytracer.TraceRay(
-							camera.Position,
-							newDirection,
-							c.View.D,
-							float32(raytracer.MAX_INF),
-							spheres,
-							lights,
-							raytracer.MAX_RECURSION,
-						)
-						c.PutPixel(x, y, color)
-					}
-				}
-				wg.Done()
-			}, false)
-		}
+		// 				color := raytracer.TraceRay(
+		// 					camera.Position,
+		// 					newDirection,
+		// 					c.View.D,
+		// 					float32(raytracer.MAX_INF),
+		// 					spheres,
+		// 					lights,
+		// 					raytracer.MAX_RECURSION,
+		// 				)
+		// 				c.PutPixel(x, y, color)
+		// 			}
+		// 		}
+		// 		wg.Done()
+		// 	}, false)
+		// }
 
 		// Can run without a waiting, but has too many tearing in the image,
 		// as the pixel array will have old pixel data..
