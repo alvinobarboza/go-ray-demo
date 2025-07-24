@@ -18,6 +18,10 @@ https://gabrielgambetta.com/computer-graphics-from-scratch/
 
 # Image from raytracer
 
+## _Expanding the Raytracer_ - Better multithreading
+
+![Frame, framerate and tips](/img3.png?raw=true 'Frame, framerate and tips')
+
 ## _Expanding the Raytracer_
 
 ![Frame, framerate and tips](/img2.png?raw=true 'Frame, framerate and tips')
