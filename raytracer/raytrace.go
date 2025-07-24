@@ -9,17 +9,17 @@ import (
 const MAX_INF int32 = 1_000_000_000
 const MAX_RECURSION int8 = 2
 
-func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []Ligths, recursion int8) rl.Color {
-	closest_sphere, closest_t := ClosesIntersection(O, D, t_min, t_max, spheres)
+func TraceRay(origin, ray rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []Ligths, recursion int8) rl.Color {
+	closest_sphere, closest_t := ClosesIntersection(origin, ray, t_min, t_max, spheres)
 
 	if closest_sphere.Radius == 0 {
 		return rl.Gray
 	}
 
 	point := rl.Vector3{
-		X: O.X + closest_t*D.X,
-		Y: O.Y + closest_t*D.Y,
-		Z: O.Z + closest_t*D.Z,
+		X: origin.X + closest_t*ray.X,
+		Y: origin.Y + closest_t*ray.Y,
+		Z: origin.Z + closest_t*ray.Z,
 	}
 
 	normal := rl.Vector3{
@@ -36,11 +36,7 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 		normal.Z = normal.Z / l_normal
 	}
 
-	objToCam := rl.Vector3{
-		X: D.X * -1,
-		Y: D.Y * -1,
-		Z: D.Z * -1,
-	}
+	objToCam := VecMultiply(ray, -1)
 
 	i := ComputeLighting(point, normal, objToCam, lights, spheres, closest_sphere.Specular)
 
@@ -66,8 +62,9 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 
 	if closest_sphere.Opacity > 0 {
 		o := closest_sphere.Opacity
-		// TODO: Refraction
-		refracted := Refraction(D, normal, closest_sphere.RefractionIndex)
+
+		angleRay := RayAngleFromNormal(ray, normal)
+		refracted := Refraction(ray, normal, angleRay, closest_sphere.RefractionIndex)
 		transparentColor := TraceRay(point, refracted, t_min, t_max, spheres, lights, recursion-1)
 
 		reflected_color.R = uint8(float32(reflected_color.R)*(1-o) + float32(transparentColor.R)*o)
@@ -96,16 +93,16 @@ func ClosesIntersection(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere)
 	return closest_sphere, closest_t
 }
 
-func IntersectRaySphere(O, D rl.Vector3, sphere Sphere) (float32, float32) {
+func IntersectRaySphere(origin, ray rl.Vector3, sphere Sphere) (float32, float32) {
 	r := sphere.Radius
 	CO := rl.Vector3{
-		X: O.X - sphere.Center.X,
-		Y: O.Y - sphere.Center.Y,
-		Z: O.Z - sphere.Center.Z,
+		X: origin.X - sphere.Center.X,
+		Y: origin.Y - sphere.Center.Y,
+		Z: origin.Z - sphere.Center.Z,
 	}
 
-	a := VecDot(D, D)
-	b := 2 * (VecDot(CO, D))
+	a := VecDot(ray, ray)
+	b := 2 * (VecDot(CO, ray))
 	c := (VecDot(CO, CO)) - (r * r)
 
 	discriminant := b*b - 4*a*c
