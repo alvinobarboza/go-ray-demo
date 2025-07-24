@@ -178,15 +178,18 @@ func ReflectRay(ray, normal rl.Vector3) rl.Vector3 {
 	}
 }
 
-func Refraction(ray, normal rl.Vector3, refractionIndex float32) rl.Vector3 {
-	rayDotNormal := VecDot(ray, normal)
-	lenRay := VecLen(ray)
-	lenNormal := VecLen(normal)
+// Formula for rotation around a arbtrary orthognal vector(both vector must be normalized)
+// u = ortho vector = cross product of ray and normal
+// x = vector to rotate = ray
+// angle = radian
+// newx = u * (u dot x) + cos(angle) * (u cross x) cross u + sin(angle)*(u cross x)
+func Refraction(ray, normal rl.Vector3, angleRay, refractionIndex float32) rl.Vector3 {
+	angleIndex := math.Asin(math.Sin(float64(angleRay)) / (float64(refractionIndex)))
 
-	angleRay := math.Acos(float64(rayDotNormal / (lenRay * lenNormal)))
-	angleIndex := math.Asin(math.Sin(angleRay) / (float64(refractionIndex)))
-
-	crossRayNormal := CrossProdutc(ray, normal)
+	crossRayNormal := CrossProdutc(normal, ray)
+	if crossRayNormal.X != 0 && crossRayNormal.Y != 0 && crossRayNormal.Z != 0 {
+		crossRayNormal = VecNormal(crossRayNormal)
+	}
 	c1 := VecMultiply(crossRayNormal, VecDot(crossRayNormal, ray))
 	c2 := CrossProdutc(
 		VecMultiply(
@@ -197,5 +200,22 @@ func Refraction(ray, normal rl.Vector3, refractionIndex float32) rl.Vector3 {
 	)
 	c3 := VecMultiply(CrossProdutc(crossRayNormal, ray), float32(math.Sin(angleIndex)))
 
-	return VecNormal(VecAdd(VecAdd(c1, c2), c3))
+	c1c2 := VecAdd(c1, c2)
+	c1c2c3 := VecAdd(c1c2, c3)
+	if c1c2c3.X == 0 && c1c2c3.Y == 0 && c1c2c3.Z == 0 {
+		return c1c2c3
+	}
+
+	return VecNormal(c1c2c3)
+}
+
+// Find angle between two vectors
+// angle = cos(angle) = (u dot v) / (length u * length v)
+func RayAngleFromNormal(ray, normal rl.Vector3) float32 {
+	rayDotNormal := VecDot(ray, normal)
+	lenRay := VecLen(ray)
+	lenNormal := VecLen(normal)
+
+	angleRay := math.Acos(float64(rayDotNormal / (lenRay * lenNormal)))
+	return float32(angleRay)
 }
