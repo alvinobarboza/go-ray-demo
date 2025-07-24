@@ -85,11 +85,11 @@ func main() {
 		{
 			Center:          rl.Vector3{X: -.5, Y: 0, Z: 2},
 			Radius:          .4,
-			Color:           rl.Blank,
-			Specular:        100,
-			Reflective:      0.5,
-			Opacity:         .5,
-			RefractionIndex: 1.333,
+			Color:           rl.Blue,
+			Specular:        200,
+			Reflective:      0.2,
+			Opacity:         0.9,
+			RefractionIndex: 1.33,
 		},
 		{
 			Center:     rl.Vector3{X: 0, Y: -501, Z: 0},

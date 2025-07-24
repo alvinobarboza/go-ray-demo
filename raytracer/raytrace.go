@@ -7,7 +7,7 @@ import (
 )
 
 const MAX_INF int32 = 1_000_000_000
-const MAX_RECURSION int8 = 2
+const MAX_RECURSION int8 = 3
 
 func TraceRay(origin, ray rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []Ligths, recursion int8) rl.Color {
 	closest_sphere, closest_t := ClosesIntersection(origin, ray, t_min, t_max, spheres)
@@ -46,7 +46,19 @@ func TraceRay(origin, ray rl.Vector3, t_min, t_max float32, spheres []Sphere, li
 
 	local_color := closest_sphere.Color
 
-	if recursion <= 0 || closest_sphere.Reflective <= 0 || closest_sphere.Opacity <= 0 {
+	if closest_sphere.Opacity > 0 {
+		o := closest_sphere.Opacity
+
+		angleRay := RayAngleFromNormal(ray, normal)
+		refracted := Refraction(ray, normal, angleRay, closest_sphere.RefractionIndex)
+		transparentColor := TraceRay(point, refracted, t_min, t_max, spheres, lights, recursion-1)
+
+		local_color.R = uint8(float32(local_color.R)*(1-o) + float32(transparentColor.R)*o)
+		local_color.G = uint8(float32(local_color.G)*(1-o) + float32(transparentColor.G)*o)
+		local_color.B = uint8(float32(local_color.B)*(1-o) + float32(transparentColor.B)*o)
+	}
+
+	if recursion <= 0 || closest_sphere.Reflective <= 0 {
 		return local_color
 	}
 
@@ -59,18 +71,6 @@ func TraceRay(origin, ray rl.Vector3, t_min, t_max float32, spheres []Sphere, li
 	reflected_color.R = uint8(float32(local_color.R)*(1-r) + float32(reflected_color.R)*r)
 	reflected_color.G = uint8(float32(local_color.G)*(1-r) + float32(reflected_color.G)*r)
 	reflected_color.B = uint8(float32(local_color.B)*(1-r) + float32(reflected_color.B)*r)
-
-	if closest_sphere.Opacity > 0 {
-		o := closest_sphere.Opacity
-
-		angleRay := RayAngleFromNormal(ray, normal)
-		refracted := Refraction(ray, normal, angleRay, closest_sphere.RefractionIndex)
-		transparentColor := TraceRay(point, refracted, t_min, t_max, spheres, lights, recursion-1)
-
-		reflected_color.R = uint8(float32(reflected_color.R)*(1-o) + float32(transparentColor.R)*o)
-		reflected_color.G = uint8(float32(reflected_color.G)*(1-o) + float32(transparentColor.G)*o)
-		reflected_color.B = uint8(float32(reflected_color.B)*(1-o) + float32(transparentColor.B)*o)
-	}
 
 	return reflected_color
 }
