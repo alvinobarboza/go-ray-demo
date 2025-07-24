@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"go-ray-demo/raytracer"
+	"runtime"
 	"sync"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -13,11 +14,15 @@ func main() {
 		screenWidth  int32 = 1000
 		screenHeight int32 = 1000
 
-		moveSpeed float32 = 5
-		turnSpeed float32 = 80
-
-		threads int = 8
+		moveSpeed float32 = 4
+		turnSpeed float32 = 70
 	)
+	// Dynamically get CPUs to spawn a
+	// reasonable number of goroutines
+	threads := runtime.NumCPU()
+	if threads > 3 {
+		threads -= 2
+	}
 
 	rl.InitWindow(screenWidth, screenHeight, "go raytracer - raylib screen texture")
 
@@ -155,8 +160,13 @@ func main() {
 		rowRange = append(rowRange, j)
 	}
 
-	matrixSides := 100
+	// Dynamically choose size of minor matrix to run in the task
+	// Trying to maximize goroutine use, as a too small window
+	// would make too many calls to "chan", and too large window
+	// would waste goroutine in idle
+	matrixSides := int(width * height / int32(threads) / width)
 
+	// Precompute the task that will run in the frame update
 	task := func(csx, cex, csy, cey int) func() {
 		return func() {
 			for xx := csx; xx < cex; xx++ {
@@ -269,46 +279,6 @@ func main() {
 				}
 			}
 		}
-
-		// startW, endW := -c.Width/2, c.Width/2
-		// startH, endH := -c.Height/2, c.Height/2
-
-		// Manual task separation, for tasks
-		// -x,y
-		// -x,-y
-		// x,y
-		// x,-y
-
-		// listT := [][]int32{
-		// 	{startW, 0, 0, endH},
-		// 	{startW, 0, startH, 0},
-		// 	{0, endW, 0, endH},
-		// 	{0, endW, startH, 0},
-		// }
-
-		// for _, i := range listT {
-		// 	wg.Add(1)
-		// 	doTask(func() {
-		// 		for x := i[0]; x < i[1]; x++ {
-		// 			for y := i[2]; y < i[3]; y++ {
-		// 				direction := c.CanvasToViewport(x, y)
-		// 				newDirection := raytracer.RotateXYZ(camera.Rotation, direction)
-
-		// 				color := raytracer.TraceRay(
-		// 					camera.Position,
-		// 					newDirection,
-		// 					c.View.D,
-		// 					float32(raytracer.MAX_INF),
-		// 					spheres,
-		// 					lights,
-		// 					raytracer.MAX_RECURSION,
-		// 				)
-		// 				c.PutPixel(x, y, color)
-		// 			}
-		// 		}
-		// 		wg.Done()
-		// 	}, false)
-		// }
 
 		// Can run without a waiting, but has too many tearing in the image,
 		// as the pixel array will have old pixel data..
