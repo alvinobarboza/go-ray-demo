@@ -26,6 +26,6 @@ https://gabrielgambetta.com/computer-graphics-from-scratch/
 
 ![Frame, framerate and tips](/img2.png?raw=true 'Frame, framerate and tips')
 
-## Fisrt Implementation
+## First Implementation
 
 ![Frame and framerate](/img.png?raw=true 'Frame and framerate')
