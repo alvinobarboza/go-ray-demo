@@ -67,7 +67,8 @@ func TraceRay(O, D rl.Vector3, t_min, t_max float32, spheres []Sphere, lights []
 	if closest_sphere.Opacity > 0 {
 		o := closest_sphere.Opacity
 		// TODO: Refraction
-		transparentColor := TraceRay(point, D, t_min, t_max, spheres, lights, recursion-1)
+		refracted := Refraction(D, normal, closest_sphere.RefractionIndex)
+		transparentColor := TraceRay(point, refracted, t_min, t_max, spheres, lights, recursion-1)
 
 		reflected_color.R = uint8(float32(reflected_color.R)*(1-o) + float32(transparentColor.R)*o)
 		reflected_color.G = uint8(float32(reflected_color.G)*(1-o) + float32(transparentColor.G)*o)
@@ -175,4 +176,26 @@ func ReflectRay(ray, normal rl.Vector3) rl.Vector3 {
 		Y: 2*normal.Y*r_dot_n - ray.Y,
 		Z: 2*normal.Z*r_dot_n - ray.Z,
 	}
+}
+
+func Refraction(ray, normal rl.Vector3, refractionIndex float32) rl.Vector3 {
+	rayDotNormal := VecDot(ray, normal)
+	lenRay := VecLen(ray)
+	lenNormal := VecLen(normal)
+
+	angleRay := math.Acos(float64(rayDotNormal / (lenRay * lenNormal)))
+	angleIndex := math.Asin(math.Sin(angleRay) / (float64(refractionIndex)))
+
+	crossRayNormal := CrossProdutc(ray, normal)
+	c1 := VecMultiply(crossRayNormal, VecDot(crossRayNormal, ray))
+	c2 := CrossProdutc(
+		VecMultiply(
+			CrossProdutc(crossRayNormal, ray),
+			float32(math.Cos(angleIndex)),
+		),
+		crossRayNormal,
+	)
+	c3 := VecMultiply(CrossProdutc(crossRayNormal, ray), float32(math.Sin(angleIndex)))
+
+	return VecNormal(VecAdd(VecAdd(c1, c2), c3))
 }

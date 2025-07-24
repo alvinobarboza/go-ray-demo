@@ -28,6 +28,22 @@ func VecNormal(v rl.Vector3) rl.Vector3 {
 	}
 }
 
+func VecAdd(v1, v2 rl.Vector3) rl.Vector3 {
+	return rl.Vector3{
+		X: v1.X + v1.X,
+		Y: v1.Y + v1.Y,
+		Z: v1.Z + v1.Z,
+	}
+}
+
+func VecMultiply(v rl.Vector3, n float32) rl.Vector3 {
+	return rl.Vector3{
+		X: v.X * n,
+		Y: v.Y * n,
+		Z: v.Z * n,
+	}
+}
+
 func MatrixMultiplication(m []float32, v rl.Vector3) rl.Vector3 {
 	result := []float32{0, 0, 0}
 	vec := []float32{v.X, v.Y, v.Z}

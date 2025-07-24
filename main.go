@@ -87,7 +87,7 @@ func main() {
 			Radius:          0.3,
 			Color:           rl.Blank,
 			Specular:        10,
-			Reflective:      1,
+			Reflective:      0.02,
 			Opacity:         .5,
 			RefractionIndex: 1.333,
 		},
@@ -221,7 +221,7 @@ func main() {
 		}
 
 		// Can run without a waiting, but has too many tearing in the image,
-		// as the pixel arrey will have old pixel data..
+		// as the pixel array will have old pixel data..
 		// The tasks are run in parallel, so they will fill
 		// pixel data when finished, not in this loop
 		// wait, prevents that
