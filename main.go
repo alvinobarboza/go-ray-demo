@@ -14,8 +14,8 @@ func main() {
 		screenWidth  int32 = 1000
 		screenHeight int32 = 1000
 
-		moveSpeed float32 = 4
-		turnSpeed float32 = 70
+		moveSpeed = 4
+		turnSpeed = 70
 	)
 	// Dynamically get CPUs to spawn a
 	// reasonable number of goroutines
@@ -51,17 +51,17 @@ func main() {
 	posY := screenHeight/2 - checked.Height/2
 
 	camera := raytracer.Camera{
-		Position: rl.Vector3{
+		Position: raytracer.Vec3{
 			X: 0,
 			Y: 0,
 			Z: 0,
 		},
-		Rotation: rl.Vector3{
+		Rotation: raytracer.Vec3{
 			X: 0,
 			Y: 0,
 			Z: 0,
 		},
-		Direction: rl.Vector3{
+		Direction: raytracer.Vec3{
 			X: 0,
 			Y: 0,
 			Z: 1,
@@ -69,28 +69,28 @@ func main() {
 	}
 	spheres := []raytracer.Sphere{
 		{
-			Center:     rl.Vector3{X: 0, Y: -1, Z: 3},
+			Center:     raytracer.Vec3{X: 0, Y: -1, Z: 3},
 			Radius:     1,
 			Color:      rl.Red,
 			Specular:   500,
 			Reflective: 0.2,
 		},
 		{
-			Center:     rl.Vector3{X: 2, Y: 0, Z: 4},
+			Center:     raytracer.Vec3{X: 2, Y: 0, Z: 4},
 			Radius:     1,
 			Color:      rl.Blue,
 			Specular:   500,
 			Reflective: 0.001,
 		},
 		{
-			Center:     rl.Vector3{X: -2, Y: 0, Z: 4},
+			Center:     raytracer.Vec3{X: -2, Y: 0, Z: 4},
 			Radius:     1,
 			Color:      rl.Green,
 			Specular:   10,
 			Reflective: 0.1,
 		},
 		{
-			Center:          rl.Vector3{X: -.5, Y: 0, Z: 2},
+			Center:          raytracer.Vec3{X: -.5, Y: 0, Z: 2},
 			Radius:          .4,
 			Color:           rl.Blue,
 			Specular:        200,
@@ -99,7 +99,7 @@ func main() {
 			RefractionIndex: 1.33,
 		},
 		{
-			Center:     rl.Vector3{X: 0, Y: -501, Z: 0},
+			Center:     raytracer.Vec3{X: 0, Y: -501, Z: 0},
 			Radius:     500,
 			Color:      rl.DarkGreen,
 			Specular:   200,
@@ -115,12 +115,12 @@ func main() {
 		{
 			TypeL:     raytracer.POINT,
 			Intensity: 0.6,
-			Position:  rl.Vector3{X: 2, Y: 1, Z: 0},
+			Position:  raytracer.Vec3{X: 2, Y: 1, Z: 0},
 		},
 		{
 			TypeL:     raytracer.DIRECTIONAL,
 			Intensity: 0.2,
-			Direction: rl.Vector3{X: 1, Y: 4, Z: 4},
+			Direction: raytracer.Vec3{X: 1, Y: 4, Z: 4},
 		},
 	}
 
@@ -178,10 +178,10 @@ func main() {
 						camera.Position,
 						newDirection,
 						c.View.D,
-						float32(raytracer.MAX_INF),
+						raytracer.MaxInf,
 						spheres,
 						lights,
-						raytracer.MAX_RECURSION,
+						raytracer.MaxRecursion,
 					)
 					c.PutPixel(columnRange[xx], rowRange[yy], color)
 				}
@@ -192,51 +192,51 @@ func main() {
 
 	for !rl.WindowShouldClose() {
 		if rl.IsKeyDown(rl.KeyU) {
-			spheres[3].Center.Z += 2 * rl.GetFrameTime()
+			spheres[3].Center.Z += 2 * float64(rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyJ) {
-			spheres[3].Center.Z -= 2 * rl.GetFrameTime()
+			spheres[3].Center.Z -= 2 * float64(rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyH) {
-			spheres[3].Center.X -= 2 * rl.GetFrameTime()
+			spheres[3].Center.X -= 2 * float64(rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyK) {
-			spheres[3].Center.X += 2 * rl.GetFrameTime()
+			spheres[3].Center.X += 2 * float64(rl.GetFrameTime())
 		}
 
 		if rl.IsKeyDown(rl.KeyW) {
-			camera.MoveForward(moveSpeed * rl.GetFrameTime())
+			camera.MoveForward(moveSpeed * float64(rl.GetFrameTime()))
 		}
 		if rl.IsKeyDown(rl.KeyS) {
-			camera.MoveBackward(moveSpeed * rl.GetFrameTime())
+			camera.MoveBackward(moveSpeed * float64(rl.GetFrameTime()))
 		}
 		if rl.IsKeyDown(rl.KeyA) {
-			camera.MoveLeft(moveSpeed * rl.GetFrameTime())
+			camera.MoveLeft(moveSpeed * float64(rl.GetFrameTime()))
 		}
 		if rl.IsKeyDown(rl.KeyD) {
-			camera.MoveRight(moveSpeed * rl.GetFrameTime())
+			camera.MoveRight(moveSpeed * float64(rl.GetFrameTime()))
 		}
 		if rl.IsKeyDown(rl.KeySpace) {
-			camera.Position.Y += moveSpeed * rl.GetFrameTime()
+			camera.Position.Y += moveSpeed * float64(rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyLeftControl) {
-			camera.Position.Y -= moveSpeed * rl.GetFrameTime()
+			camera.Position.Y -= moveSpeed * float64(rl.GetFrameTime())
 		}
 
 		if rl.IsKeyDown(rl.KeyRight) {
-			camera.Rotation.Y -= turnSpeed * rl.GetFrameTime()
+			camera.Rotation.Y -= turnSpeed * float64(rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyLeft) {
-			camera.Rotation.Y += turnSpeed * rl.GetFrameTime()
+			camera.Rotation.Y += turnSpeed * float64(rl.GetFrameTime())
 		}
 		if rl.IsKeyDown(rl.KeyUp) {
-			camera.Rotation.X += turnSpeed * rl.GetFrameTime()
+			camera.Rotation.X += turnSpeed * float64(rl.GetFrameTime())
 			if camera.Rotation.X >= 90 {
 				camera.Rotation.X = 89
 			}
 		}
 		if rl.IsKeyDown(rl.KeyDown) && camera.Rotation.X < 90 {
-			camera.Rotation.X -= turnSpeed * rl.GetFrameTime()
+			camera.Rotation.X -= turnSpeed * float64(rl.GetFrameTime())
 			if camera.Rotation.X <= -90 {
 				camera.Rotation.X = -89
 			}

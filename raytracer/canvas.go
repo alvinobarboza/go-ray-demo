@@ -20,14 +20,14 @@ func (c *Canvas) PutPixel(x, y int32, color rl.Color) {
 	c.Pixels[cY*c.Width+cX] = color
 }
 
-func (c *Canvas) CanvasToViewport(x, y int32) rl.Vector3 {
-	return rl.Vector3{
-		X: float32(x) * c.View.X / float32(c.Width),
-		Y: float32(y) * c.View.Y / float32(c.Height),
-		Z: float32(c.View.D),
+func (c *Canvas) CanvasToViewport(x, y int32) Vec3 {
+	return Vec3{
+		X: float64(x) * c.View.X / float64(c.Width),
+		Y: float64(y) * c.View.Y / float64(c.Height),
+		Z: c.View.D,
 	}
 }
 
 type View struct {
-	X, Y, D float32
+	X, Y, D float64
 }
