@@ -36,8 +36,8 @@ type Camera struct {
 }
 
 func (c *Camera) MoveForward(unit float64) {
-	direction := RotateXYZ(c.Rotation, c.Direction)
-	lenD := VecLen(direction)
+	direction := c.Direction.RotateXYZ(c.Rotation)
+	lenD := direction.VecLen()
 	normalDirection := Vec3{
 		X: direction.X / lenD,
 		Y: direction.Y / lenD,
@@ -53,10 +53,10 @@ func (c *Camera) MoveBackward(unit float64) {
 }
 
 func (c *Camera) MoveLeft(unit float64) {
-	direction := RotateXYZ(c.Rotation, c.Direction)
+	direction := c.Direction.RotateXYZ(c.Rotation)
 	sideDirection := CrossProdutc(direction, Vec3{Y: 1})
 
-	lenD := VecLen(sideDirection)
+	lenD := sideDirection.VecLen()
 	normalDirection := Vec3{
 		X: sideDirection.X / lenD,
 		Y: sideDirection.Y / lenD,

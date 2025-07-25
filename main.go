@@ -172,7 +172,7 @@ func main() {
 			for xx := csx; xx < cex; xx++ {
 				for yy := csy; yy < cey; yy++ {
 					direction := c.CanvasToViewport(columnRange[xx], rowRange[yy])
-					newDirection := raytracer.RotateXYZ(camera.Rotation, direction)
+					newDirection := direction.RotateXYZ(camera.Rotation)
 
 					color := raytracer.TraceRay(
 						camera.Position,

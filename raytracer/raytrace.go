@@ -28,7 +28,7 @@ func TraceRay(origin, ray Vec3, t_min, t_max float64, spheres []Sphere, lights [
 		Z: point.Z - closest_sphere.Center.Z,
 	}
 
-	l_normal := VecLen(normal)
+	l_normal := normal.VecLen()
 
 	if l_normal > 0 {
 		normal.X = normal.X / l_normal
@@ -36,7 +36,7 @@ func TraceRay(origin, ray Vec3, t_min, t_max float64, spheres []Sphere, lights [
 		normal.Z = normal.Z / l_normal
 	}
 
-	objToCam := VecMultiply(ray, -1)
+	objToCam := ray.VecMultiply(-1)
 
 	i := ComputeLighting(point, normal, objToCam, lights, spheres, closest_sphere.Specular)
 
@@ -101,9 +101,9 @@ func IntersectRaySphere(origin, ray Vec3, sphere Sphere) (float64, float64) {
 		Z: origin.Z - sphere.Center.Z,
 	}
 
-	a := VecDot(ray, ray)
-	b := 2 * (VecDot(CO, ray))
-	c := (VecDot(CO, CO)) - (r * r)
+	a := ray.VecDot()
+	b := 2 * VecDot(CO, ray)
+	c := CO.VecDot() - (r * r)
 
 	discriminant := b*b - 4*a*c
 	if discriminant < 0 {
@@ -141,8 +141,8 @@ func ComputeLighting(point, normal, objToCam Vec3, lights []Ligths, spheres []Sp
 			// Deffuse
 			n_dot_l := VecDot(normal, L)
 			if n_dot_l > 0 {
-				length_normal := VecLen(normal)
-				length_L := VecLen(L)
+				length_normal := normal.VecLen()
+				length_L := L.VecLen()
 				i += light.Intensity * n_dot_l / (length_normal * length_L)
 			}
 
@@ -151,8 +151,8 @@ func ComputeLighting(point, normal, objToCam Vec3, lights []Ligths, spheres []Sp
 				reflected := ReflectRay(L, normal)
 				r_dot_oc := VecDot(reflected, objToCam)
 				if r_dot_oc > 0 {
-					length_reflected := VecLen(reflected)
-					length_objToCam := VecLen(objToCam)
+					length_reflected := reflected.VecLen()
+					length_objToCam := objToCam.VecLen()
 					i += light.Intensity * math.Pow(r_dot_oc/(length_reflected*length_objToCam), float64(s))
 				}
 			}
@@ -185,17 +185,17 @@ func Refraction(ray, normal Vec3, angleRay, refractionIndex float64) Vec3 {
 
 	crossRayNormal := CrossProdutc(normal, ray)
 	if crossRayNormal.X != 0 && crossRayNormal.Y != 0 && crossRayNormal.Z != 0 {
-		crossRayNormal = VecNormal(crossRayNormal)
+		crossRayNormal = crossRayNormal.VecNormal()
 	}
-	c1 := VecMultiply(crossRayNormal, VecDot(crossRayNormal, ray))
+	crossRayCross := CrossProdutc(crossRayNormal, ray)
+	c1 := crossRayNormal.VecMultiply(VecDot(crossRayNormal, ray))
 	c2 := CrossProdutc(
-		VecMultiply(
-			CrossProdutc(crossRayNormal, ray),
+		crossRayCross.VecMultiply(
 			math.Cos(angleIndex),
 		),
 		crossRayNormal,
 	)
-	c3 := VecMultiply(CrossProdutc(crossRayNormal, ray), math.Sin(angleIndex))
+	c3 := crossRayCross.VecMultiply(math.Sin(angleIndex))
 
 	c1c2 := VecAdd(c1, c2)
 	c1c2c3 := VecAdd(c1c2, c3)
@@ -203,15 +203,15 @@ func Refraction(ray, normal Vec3, angleRay, refractionIndex float64) Vec3 {
 		return c1c2c3
 	}
 
-	return VecNormal(c1c2c3)
+	return c1c2c3.VecNormal()
 }
 
 // Find angle between two vectors
 // angle = cos(angle) = (u dot v) / (length u * length v)
 func RayAngleFromNormal(ray, normal Vec3) float64 {
 	rayDotNormal := VecDot(ray, normal)
-	lenRay := VecLen(ray)
-	lenNormal := VecLen(normal)
+	lenRay := ray.VecLen()
+	lenNormal := normal.VecLen()
 
 	angleRay := math.Acos(rayDotNormal / (lenRay * lenNormal))
 	return angleRay
